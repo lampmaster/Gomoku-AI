@@ -1,14 +1,21 @@
+import model.Move;
+import model.Player;
+import player.HumanPlayerController;
+import player.PlayerController;
+import player.RandomAIPlayerController;
+
 import java.util.Scanner;
 
 public class Main {
-    final private int boardSize = 3;
+    final private int boardSize = 10;
     private int emptyCells = boardSize * boardSize;
     private char[][] board;
-    private Player currentPlayer = Player.player_one;
     private GameStatus gameStatus = GameStatus.IN_PROGRESS;
-
     private final Scanner scanner = new Scanner(System.in);
 
+    private Player currentPlayer = Player.player_one;
+    private final PlayerController playerOneController = new HumanPlayerController(scanner);
+    private final PlayerController playerTwoController = new RandomAIPlayerController();
 
     public static void main(String[] args) {
         new Main().start();
@@ -21,11 +28,11 @@ public class Main {
         while (gameStatus == GameStatus.IN_PROGRESS) {
             printBoard();
             System.out.println("Turn: " + currentPlayer);
-            Move move = processUserInput();
-            board[move.row][move.col] = currentPlayer.getSymbol();
+            Move move = currentPlayer == Player.player_one ? playerOneController.makeMove(board) : playerTwoController.makeMove(board);
+            board[move.row()][move.col()] = currentPlayer.getSymbol();
             emptyCells =- 1;
 
-            if (isWinner(move.row, move.col)) {
+            if (isWinner(move.row(), move.col())) {
                 gameStatus = currentPlayer == Player.player_one ? GameStatus.PLAYER_ONE_WIN : GameStatus.PLAYER_TWO_WIN;
                 printBoard();
                 System.out.println("Game Over! " + currentPlayer + " wins!");
@@ -42,43 +49,6 @@ public class Main {
             currentPlayer = currentPlayer.next();
         }
     }
-
-    public Move processUserInput() {
-        int row;
-        int col;
-
-        while (true) {
-            String input = scanner.nextLine();
-            String[] parts = input.split(" ");
-
-            if (parts.length != 2) {
-                System.out.println("Please enter exactly two number: row col");
-                continue;
-            }
-            try {
-                row = Integer.parseInt(parts[0]);
-                col = Integer.parseInt(parts[1]);
-
-                if (row < 1 || row > boardSize || col < 1 || col > boardSize) {
-                    System.out.println("Invalid move. Please enter numbers between 1 and " + boardSize);
-                    continue;
-                }
-
-                if (board[row - 1][col - 1] == Player.player_two.getSymbol() || board[row - 1][col - 1] == Player.player_one.getSymbol()) {
-                    System.out.println("Cell is already taken. Please choose another cell.");
-                    continue;
-                }
-
-                break;
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter two integers.");
-            }
-        }
-
-        return new Move(row - 1, col - 1);
-    }
-
-    public record Move(int row, int col) {}
 
     public char[][] createBoard() {
         char[][] board = new char[boardSize][boardSize];
@@ -121,7 +91,7 @@ public class Main {
 
     private boolean isWinner(int row, int col) {
         int[] dxArr = {1, 0, 1, 1}, dyArr = {0, 1, 1, -1};
-        int cellsToWin = 3;
+        int cellsToWin = 5;
 
         for (int directIndex = 0; directIndex < 4; directIndex++) {
             int count = 0;

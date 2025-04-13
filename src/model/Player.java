@@ -1,3 +1,5 @@
+package model;
+
 public enum Player {
     player_one('X'),
     player_two('O');
