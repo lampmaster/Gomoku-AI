@@ -1,5 +1,6 @@
 package player;
 
+import model.Board;
 import model.Move;
 import model.Player;
 
@@ -13,7 +14,7 @@ public class HumanPlayerController implements PlayerController {
     }
 
     @Override
-    public Move makeMove(char[][] board) {
+    public Move makeMove(Board board) {
         int row;
         int col;
 
@@ -29,12 +30,12 @@ public class HumanPlayerController implements PlayerController {
                 row = Integer.parseInt(parts[0]);
                 col = Integer.parseInt(parts[1]);
 
-                if (row < 1 || row > board.length || col < 1 || col > board.length) {
-                    System.out.println("Invalid move. Please enter numbers between 1 and " + board.length);
+                if (row < 1 || row > board.size() || col < 1 || col > board.size()) {
+                    System.out.println("Invalid move. Please enter numbers between 1 and " + board.size());
                     continue;
                 }
 
-                if (board[row - 1][col - 1] == Player.player_two.getSymbol() || board[row - 1][col - 1] == Player.player_one.getSymbol()) {
+                if (board.get(row - 1,col - 1) == Player.player_two.getSymbol() || board.get(row - 1,col - 1) == Player.player_one.getSymbol()) {
                     System.out.println("Cell is already taken. Please choose another cell.");
                     continue;
                 }

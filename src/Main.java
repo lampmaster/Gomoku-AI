@@ -1,3 +1,4 @@
+import model.Board;
 import model.Move;
 import model.Player;
 import player.HumanPlayerController;
@@ -8,8 +9,7 @@ import java.util.Scanner;
 
 public class Main {
     final private int boardSize = 10;
-    private int emptyCells = boardSize * boardSize;
-    private char[][] board;
+    private Board board;
     private GameStatus gameStatus = GameStatus.IN_PROGRESS;
     private final Scanner scanner = new Scanner(System.in);
 
@@ -23,23 +23,22 @@ public class Main {
 
     public void start() {
         System.out.println("Welcome to Gomoku!");
-        board = createBoard();
+        board = new Board(boardSize);
 
         while (gameStatus == GameStatus.IN_PROGRESS) {
             printBoard();
             System.out.println("Turn: " + currentPlayer);
             Move move = currentPlayer == Player.player_one ? playerOneController.makeMove(board) : playerTwoController.makeMove(board);
-            board[move.row()][move.col()] = currentPlayer.getSymbol();
-            emptyCells =- 1;
+            board.set(move.row(), move.col(), currentPlayer.getSymbol());
 
-            if (isWinner(move.row(), move.col())) {
+            if (board.isWinner(move.row(), move.col(), currentPlayer.getSymbol())) {
                 gameStatus = currentPlayer == Player.player_one ? GameStatus.PLAYER_ONE_WIN : GameStatus.PLAYER_TWO_WIN;
                 printBoard();
                 System.out.println("Game Over! " + currentPlayer + " wins!");
                 break;
             }
 
-            if (isDraw()) {
+            if (board.isDraw()) {
                 gameStatus = GameStatus.DRAW;
                 printBoard();
                 System.out.println("Game Over! It's a draw!");
@@ -48,18 +47,6 @@ public class Main {
 
             currentPlayer = currentPlayer.next();
         }
-    }
-
-    public char[][] createBoard() {
-        char[][] board = new char[boardSize][boardSize];
-
-        for (int row = 0; row < boardSize; row++) {
-            for (int col = 0; col < boardSize; col++) {
-                board[row][col] = '.';
-            }
-        }
-
-        return board;
     }
 
     private void printBoard() {
@@ -78,40 +65,10 @@ public class Main {
             System.out.printf("%2d|", row + 1);
 
             for (int col = 0; col < boardSize; col++) {
-                System.out.printf(" %c ", board[row][col]);
+                System.out.printf(" %c ", board.get(row, col));
             }
 
             System.out.println();
         }
-    }
-
-    private boolean isDraw() {
-        return emptyCells == 0;
-    }
-
-    private boolean isWinner(int row, int col) {
-        int[] dxArr = {1, 0, 1, 1}, dyArr = {0, 1, 1, -1};
-        int cellsToWin = 5;
-
-        for (int directIndex = 0; directIndex < 4; directIndex++) {
-            int count = 0;
-
-            for (int i = -4; i < cellsToWin; i++) {
-                int dx = i * dxArr[directIndex], dy = i * dyArr[directIndex];
-
-                if (col + dx < 0 || row + dy < 0) {
-                    continue;
-                }
-
-                if (col + dx >= boardSize || row + dy >= boardSize) {
-                    break;
-                }
-
-                count = board[row + dy][col + dx] == currentPlayer.getSymbol() ? count + 1 : 0;
-                if (count == cellsToWin) return true;
-            }
-        }
-
-        return false;
     }
 }
