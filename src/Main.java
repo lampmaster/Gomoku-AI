@@ -45,7 +45,7 @@ public class Main {
                 break;
             }
 
-            currentPlayer = currentPlayer.next();
+            currentPlayer = currentPlayer.getOpponent();
         }
     }
 

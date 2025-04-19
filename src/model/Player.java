@@ -10,7 +10,7 @@ public enum Player {
         this.symbol = symbol;
     }
 
-    public Player next() {
+    public Player getOpponent() {
         return this == player_one ? player_two : player_one;
     }
 
