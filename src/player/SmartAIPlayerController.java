@@ -5,7 +5,8 @@ import model.Move;
 import model.Player;
 import model.Board;
 
-import java.util.List;
+import java.util.*;
+
 
 public class SmartAIPlayerController implements PlayerController {
     Player player;
@@ -19,7 +20,7 @@ public class SmartAIPlayerController implements PlayerController {
         int bestScore = Integer.MIN_VALUE;
         Move bestMove = null;
 
-        List<Move> availableMoves = board.getAvailableMoves();
+        List<Move> availableMoves = getAvailableMoves(board);
         for (Move move : availableMoves) {
             board.set(move.row(), move.col(), player.getSymbol());
             int alpha = Integer.MIN_VALUE;
@@ -115,7 +116,7 @@ public class SmartAIPlayerController implements PlayerController {
 
         int bestScore = isMaxPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        List<Move> nextAvailableMoves = board.getAvailableMoves();
+        List<Move> nextAvailableMoves = getAvailableMoves(board);
 
         for (Move nextMove : nextAvailableMoves) {
             board.set(nextMove.row(), nextMove.col(), currentPlayer.getSymbol());
@@ -141,5 +142,34 @@ public class SmartAIPlayerController implements PlayerController {
         }
 
         return board.isDraw() ? GameStatus.DRAW : GameStatus.IN_PROGRESS;
+    }
+
+    public List<Move> getAvailableMoves(Board board) {
+        Set<Move> candidates = new HashSet<>();
+        int center = board.size() / 2;
+        int radius = 2;
+
+        for (int i = 0; i < board.size(); i++) {
+            for (int j = 0; j < board.size(); j++) {
+                char cell = board.get(i,j);
+                if (cell == Player.player_one.getSymbol() || cell == Player.player_two.getSymbol()) {
+                    for (int nearRow = i - radius; nearRow <= i + radius; nearRow++) {
+                        for (int nearCol = j - radius; nearCol <= j + radius; nearCol++) {
+                            if (isBound(nearRow, nearCol, board.size()) && board.get(nearRow, nearCol) == '.') {
+                                candidates.add(new Move(nearRow, nearCol));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        List<Move> sortedMoves = new ArrayList<>(candidates);
+
+        sortedMoves.sort(Comparator.comparingInt(
+                move -> Math.abs(move.row() - center) + Math.abs(move.col() - center)
+        ));
+
+        return sortedMoves;
     }
 }
