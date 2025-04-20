@@ -6,6 +6,7 @@ import player.HumanPlayerController;
 import player.PlayerController;
 import player.SmartAIPlayerController;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Main {
@@ -16,8 +17,8 @@ public class Main {
 
     private Player currentPlayer = Player.player_one;
     private final PlayerController playerOneController = new HumanPlayerController(scanner);
-    private final PlayerController playerTwoController = new RandomAIPlayerController();
     private final PlayerController playerTwoController = new SmartAIPlayerController(Player.player_two);
+    private Move lastMove;
 
     public static void main(String[] args) {
         new Main().start();
@@ -30,10 +31,10 @@ public class Main {
         while (gameStatus == GameStatus.IN_PROGRESS) {
             printBoard();
             System.out.println("Turn: " + currentPlayer);
-            Move move = currentPlayer == Player.player_one ? playerOneController.makeMove(board) : playerTwoController.makeMove(board);
-            board.set(move.row(), move.col(), currentPlayer.getSymbol());
+            lastMove = currentPlayer == Player.player_one ? playerOneController.makeMove(board) : playerTwoController.makeMove(board);
+            board.set(lastMove.row(), lastMove.col(), currentPlayer.getSymbol());
 
-            if (board.isWinner(move.row(), move.col(), currentPlayer.getSymbol())) {
+            if (board.isWinner(lastMove.row(), lastMove.col(), currentPlayer.getSymbol())) {
                 gameStatus = currentPlayer == Player.player_one ? GameStatus.PLAYER_ONE_WIN : GameStatus.PLAYER_TWO_WIN;
                 printBoard();
                 System.out.println("Game Over! " + currentPlayer + " wins!");
@@ -67,7 +68,9 @@ public class Main {
             System.out.printf("%2d|", row + 1);
 
             for (int col = 0; col < boardSize; col++) {
-                System.out.printf(" %c ", board.get(row, col));
+                char symbol = board.get(row, col);
+                String symbolToPrint = Objects.equals(lastMove, new Move(row, col)) ? "\u001B[32m" + symbol + "\u001B[0m" : String.valueOf(symbol);
+                System.out.printf(" %s ", symbolToPrint);
             }
 
             System.out.println();
