@@ -1,9 +1,10 @@
 import model.Board;
+import model.GameStatus;
 import model.Move;
 import model.Player;
 import player.HumanPlayerController;
 import player.PlayerController;
-import player.RandomAIPlayerController;
+import player.SmartAIPlayerController;
 
 import java.util.Scanner;
 
@@ -16,6 +17,7 @@ public class Main {
     private Player currentPlayer = Player.player_one;
     private final PlayerController playerOneController = new HumanPlayerController(scanner);
     private final PlayerController playerTwoController = new RandomAIPlayerController();
+    private final PlayerController playerTwoController = new SmartAIPlayerController(Player.player_two);
 
     public static void main(String[] args) {
         new Main().start();
