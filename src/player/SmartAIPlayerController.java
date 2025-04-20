@@ -22,7 +22,9 @@ public class SmartAIPlayerController implements PlayerController {
         List<Move> availableMoves = board.getAvailableMoves();
         for (Move move : availableMoves) {
             board.set(move.row(), move.col(), player.getSymbol());
-            int currentScore = minimax(board, move, false, 1);
+            int alpha = Integer.MIN_VALUE;
+            int beta = Integer.MAX_VALUE;
+            int currentScore = minimax(board, move, false, 2, alpha, beta);
             board.set(move.row(), move.col(), '.');
 
             if (currentScore > bestScore) {
@@ -101,15 +103,14 @@ public class SmartAIPlayerController implements PlayerController {
         return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
     }
 
-    private int minimax(Board board, Move currentMove, boolean isMaxPlayer, int depth) {
+    private int minimax(Board board, Move currentMove, boolean isMaxPlayer, int depth, int alpha, int beta) {
         Player currentPlayer = isMaxPlayer ? player : player.getOpponent();
         Player prevPlayer = currentPlayer.getOpponent();
 
         GameStatus gameStatus = getGameStatus(board, currentMove.row(), currentMove.col(), prevPlayer);
 
         if (gameStatus != GameStatus.IN_PROGRESS || depth == 0) {
-
-            return evaluate(board, currentPlayer) - evaluate(board, prevPlayer);
+            return evaluate(board, prevPlayer) - evaluate(board, currentPlayer);
         }
 
         int bestScore = isMaxPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -118,14 +119,17 @@ public class SmartAIPlayerController implements PlayerController {
 
         for (Move nextMove : nextAvailableMoves) {
             board.set(nextMove.row(), nextMove.col(), currentPlayer.getSymbol());
-            int currentScore = minimax(board, nextMove, !isMaxPlayer, depth - 1);
+            int currentScore = minimax(board, nextMove, !isMaxPlayer, depth - 1, alpha, beta);
             board.set(nextMove.row(), nextMove.col(), '.');
 
             if (isMaxPlayer) {
                 bestScore = Math.max(bestScore, currentScore);
+                alpha = Math.max(alpha, bestScore);
             } else {
                 bestScore = Math.min(bestScore, currentScore);
+                beta = Math.min(beta, bestScore);
             }
+            if (beta <= alpha) break;
         }
 
         return bestScore;
