@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Board {
     private final char[][] board;
     private final int size;
@@ -68,5 +71,21 @@ public class Board {
             }
         }
         return true;
+    }
+
+
+    public List<Move> getAllAvailableMoves() {
+        List<Move> moves = new ArrayList<>();
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                char cell = board[i][j];
+                if (cell != Player.player_one.getSymbol() && cell != Player.player_two.getSymbol()) {
+                    moves.add(new Move(i, j));
+                }
+            }
+        }
+
+        return moves;
     }
 }

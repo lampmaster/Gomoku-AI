@@ -164,6 +164,10 @@ public class SmartAIPlayerController implements PlayerController {
             }
         }
 
+        if (candidates.isEmpty()) {
+            return board.getAllAvailableMoves();
+        }
+
         List<Move> sortedMoves = new ArrayList<>(candidates);
 
         sortedMoves.sort(Comparator.comparingInt(
